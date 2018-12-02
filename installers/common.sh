@@ -5,7 +5,8 @@ version=`sed 's/\..*//' /etc/debian_version`
 # Determine version, set default home location for lighttpd and 
 # php package to install 
 webroot_dir="/var/www/html" 
-if [ $version -eq 9 ]; then 
+
+if [ $version -eq 9 ]; then
     version_msg="Raspian 9.0 (Stretch)" 
     php_package="php7.0-cgi" 
 elif [ $version -eq 8 ]; then 
@@ -134,8 +135,10 @@ function download_latest_files() {
     fi
 
     install_log "Cloning latest files from github"
-    git clone --depth 1 https://github.com/billz/raspap-webgui /tmp/raspap-webgui || install_error "Unable to download files from github"
+//    git clone --depth 1 https://github.com/billz/raspap-webgui /tmp/raspap-webgui || install_error "Unable to download files from github"
+    cp -R ../../raspap-webgui/ /tmp/raspap-webgui
     sudo mv /tmp/raspap-webgui $webroot_dir || install_error "Unable to move raspap-webgui to web root"
+
 }
 
 # Sets files ownership in web root directory
@@ -224,10 +227,10 @@ function sudo_add() {
 }
 
 # Adds www-data user to the sudoers file with restrictions on what the user can execute
-function patch_system_files() {
+function  patch_system_files() {
     # add symlink to prevent wpa_cli cmds from breaking with multiple wlan interfaces
-    install_log "symlinked wpa_supplicant hooks for multiple wlan interfaces"
-    sudo ln -s /usr/share/dhcpcd/hooks/10-wpa_supplicant /etc/dhcp/dhclient-enter-hooks.d/
+    #install_log "symlinked wpa_supplicant hooks for multiple wlan interfaces"
+    #sudo ln -s /usr/share/dhcpcd/hooks/10-wpa_supplicant /etc/dhcp/dhclient-enter-hooks.d/
     # Set commands array
     cmds=(
         "/sbin/ifdown"
@@ -336,7 +339,7 @@ function install_raspap() {
     change_file_ownership
     create_logging_scripts
     move_config_file
-    default_configuration
+    #default_configuration
     patch_system_files
     install_complete
 }
