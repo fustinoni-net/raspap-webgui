@@ -135,7 +135,7 @@ function download_latest_files() {
     fi
 
     install_log "Cloning latest files from github"
-//    git clone --depth 1 https://github.com/billz/raspap-webgui /tmp/raspap-webgui || install_error "Unable to download files from github"
+    #git clone --depth 1 https://github.com/billz/raspap-webgui /tmp/raspap-webgui || install_error "Unable to download files from github"
     cp -R ../../raspap-webgui/ /tmp/raspap-webgui
     sudo mv /tmp/raspap-webgui $webroot_dir || install_error "Unable to move raspap-webgui to web root"
 
@@ -327,19 +327,19 @@ function install_complete() {
 }
 
 function install_raspap() {
-    display_welcome
-    config_installation
-    update_system_packages
-    install_dependencies
-    optimize_php
-    enable_php_lighttpd
-    create_raspap_directories
-    check_for_old_configs
+    #display_welcome
+    #config_installation
+    #update_system_packages
+    #install_dependencies
+    #optimize_php
+    #enable_php_lighttpd
+    #create_raspap_directories
+    #check_for_old_configs
     download_latest_files
     change_file_ownership
     create_logging_scripts
     move_config_file
-    #default_configuration
+    ##default_configuration
     patch_system_files
     install_complete
 }

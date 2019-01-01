@@ -3,7 +3,7 @@
 
 #source /tmp/raspapcommon.sh && rm -f /tmp/raspapcommon.sh
 
-source /tmp/raspapcommon.sh
+source common.sh
 
 function update_system_packages() {
     install_log "Updating sources"
