@@ -185,7 +185,7 @@ if (in_array($arrConfig['country_code'], $countries_max11channels)) {
                   <div class="col-md-4">
                     <div class="form-check">
                       <label class="form-check-label" for="chxlogenable"><?php echo _("Enable logging");
-$checkedLogEnabled = ''; 
+$checkedLogEnabled = '';
 if ($arrHostapdConf['LogEnable'] == 1) {
     $checkedLogEnabled = ' checked="checked"';
 }
@@ -200,7 +200,7 @@ if ($arrHostapdConf['LogEnable'] == 1) {
                   <div class="col-md-4">
                     <div class="form-check">
                       <label class="form-check-label" for="chxhiddenssid"><?php echo _("Hide SSID in broadcast");
-$checkedHiddenSSID = ''; 
+$checkedHiddenSSID = '';
 if ($arrConfig['ignore_broadcast_ssid'] == 1 || $arrConfig['ignore_broadcast_ssid'] == 2) {
     $checkedHiddenSSID = ' checked="checked"';
 }
