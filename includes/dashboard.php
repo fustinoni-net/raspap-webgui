@@ -1,7 +1,8 @@
 <?php
 
 /**
-* Show dashboard page.
+*
+*
 */
 function DisplayDashboard(){
 
@@ -60,7 +61,7 @@ function DisplayDashboard(){
   preg_match('/state (UP|DOWN)/i', $stdoutIpWRepeatedSpaces, $matchesState ) || $matchesState[1] = 'unknown';
   $interfaceState = $matchesState[1];
 
-  // Because of table layout used in the ip output we get the interface statistics directly from 
+  // Because of table layout used in the ip output we get the interface statistics directly from
   // the system. One advantage of this is that it could work when interface is disable.
   exec('cat /sys/class/net/'.RASPI_WIFI_CLIENT_INTERFACE.'/statistics/rx_packets ', $stdoutCatRxPackets);
   $strRxPackets = _('No data');
@@ -126,7 +127,7 @@ function DisplayDashboard(){
   preg_match('/txpower ([0-9\.]+ dBm)/i', $stdoutIpInfoWRepSpaces, $matchesTxPower ) || $matchesTxPower[1] = '';
   $txPower = $matchesTxPower[1];
 
-  // iw does not have the "Link Quality". This is a is an aggregate value, 
+  // iw does not have the "Link Quality". This is a is an aggregate value,
   // and depends on the driver and hardware.
   // Display link quality as signal quality for now.
   $strLinkQuality = 0;

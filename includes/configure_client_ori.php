@@ -49,25 +49,6 @@ function DisplayWPAConfig(){
     }
   }
 
-
-    $networks_list = array();
-    exec('python /home/pi/wifiExtender/utils/wpa_supplicant/wpaTcpGateway.py list_networks ' . RASPI_WPA_SUPPLICANT_CONFIG, $known_return);
- for( $shift = 0; $shift < 2; $shift++ ) {
-    $known_return = array_shift($known_return);
-  }
-
-    foreach($known_return as $line) {
-        $network = array('visible' => false, 'configured' => true, 'connected' => false);
-        $lineArr = preg_split('/[\t]+/', trim($line));
-        $network['id'] = trim($lineArr[0], ' ');
-        $ssid = trim($lineArr[1], ' ');
-        if ($ssid == '') $ssid = '-';
-        $network['ssid'] = $ssid;
-        $network['bssid'] = $lineArr[2];
-        $network['flags'] = trim($lineArr[3], ' ');
-        $networks_list[$ssid] = $network;
-    }
-
    if ( isset($_POST['connect']) ) {
     $result = 0;
     exec ( 'sudo wpa_cli -i ' . RASPI_WPA_CTRL_INTERFACE . ' select_network '.strval($_POST['connect'] ));
@@ -196,21 +177,7 @@ function DisplayWPAConfig(){
         <!-- /.panel-heading -->
         <div class="panel-body">
           <p><?php $status->showMessages(); ?></p>
-		<br>QUI LE RETI<br>
-            <?php
-            foreach($networks_list as $ssid => $network) {
-                echo $network['id'];
-		echo ' ';
-                echo $network['ssid'];
-		echo ' ';
-                echo $network['bssid'];
-		echo ' ';
-                echo $network['flags'];
-		echo '<br>';
-            }
-            ?>
-
-            <h4><?php echo _("Client settings"); ?></h4>
+          <h4><?php echo _("Client settings"); ?></h4>
               <div class="btn-group btn-block">
 	          <a href=".?<?php echo htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES); ?>" style="padding:10px;float: right;display: block;position: relative;margin-top: -55px;" class="col-md-2 btn btn-info" id="update"><?php echo _("Rescan"); ?></a>
 	        </div>
