@@ -4,7 +4,13 @@ define('RASPI_VERSION', '1.4.0');
 define('RASPI_CONFIG', '/etc/raspap');
 define('RASPI_CONFIG_NETWORKING',RASPI_CONFIG.'/networking');
 define('RASPI_ADMIN_DETAILS', RASPI_CONFIG.'/raspap.auth');
-define('RASPI_WIFI_CLIENT_INTERFACE', 'wlan0'); //wlan1 per caronte
+define('RASPI_WPA_CTRL_INTERFACE', '/var/run/wpa_supplicant');
+exec('ls -A1 '.RASPI_WPA_CTRL_INTERFACE.'/ | grep "^w.*" |sort' , $known_return);
+if (count($known_return)>0)
+    define('RASPI_WIFI_CLIENT_INTERFACE', trim($known_return[count($known_return)-1], ' '));
+else
+    define('RASPI_WIFI_CLIENT_INTERFACE', 'wlan0'); //wlan1 per caronte
+//define('RASPI_WIFI_CLIENT_INTERFACE', 'wlan0'); //wlan1 per caronte
 define('RASPI_WIFI_COUNTRY_CODE','IT');
 
 // Constants for configuration file paths.
@@ -15,15 +21,15 @@ define('RASPI_HOSTAPD_CONFIG', '/etc/hostapd/hostapd.conf');
 //define('RASPI_WPA_SUPPLICANT_CONFIG', '/etc/wpa_supplicant/wpa_supplicant-wlan1.conf');
 define('RASPI_WPA_SUPPLICANT_CONFIG', '/etc/wpa_supplicant/wpa_supplicant.conf');
 define('RASPI_HOSTAPD_CTRL_INTERFACE', '/var/run/hostapd');
-define('RASPI_WPA_CTRL_INTERFACE', '/var/run/wpa_supplicant');
+
 define('RASPI_OPENVPN_CLIENT_CONFIG', '/etc/openvpn/client.conf');
 define('RASPI_OPENVPN_SERVER_CONFIG', '/etc/openvpn/server.conf');
 define('RASPI_TORPROXY_CONFIG', '/etc/tor/torrc');
 
 // Optional services, set to true to enable.
-define('RASPI_HOTSPOT_ENABLED', true );
-define('RASPI_NETWORK_ENABLED', true );
-define('RASPI_DHCP_ENABLED', true );
+define('RASPI_HOTSPOT_ENABLED', false );
+define('RASPI_NETWORK_ENABLED', false );
+define('RASPI_DHCP_ENABLED', false );
 define('RASPI_OPENVPN_ENABLED', true );
 define('RASPI_TORPROXY_ENABLED', false );
 define('RASPI_CONFAUTH_ENABLED', true );
