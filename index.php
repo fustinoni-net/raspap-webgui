@@ -26,18 +26,22 @@ include_once( 'includes/locale.php');
 include_once( 'includes/functions.php' );
 include_once( 'includes/dashboard.php' );
 include_once( 'includes/authenticate.php' );
-if ( RASPI_CONFAUTH_ENABLED )                       include_once( 'includes/admin.php' );
-if ( RASPI_DHCP_ENABLED )                           include_once( 'includes/dhcp.php' );
-if ( RASPI_HOTSPOT_ENABLED )                        include_once( 'includes/hostapd.php' );
-include_once( 'includes/system.php' );              
-//include_once( 'includes/configure_client.php' );
+include_once( 'includes/admin.php' );
+include_once( 'includes/dhcp.php' );
+include_once( 'includes/hostapd.php' );
+include_once( 'includes/system.php' );
+include_once( 'includes/configure_client.php' );
 include_once( 'includes/wpa_cli_client.php' );
-if ( RASPI_NETWORK_ENABLED )                        include_once( 'includes/networking.php' );
-if ( RASPI_CHANGETHEME_ENABLED )                    include_once( 'includes/themes.php' );
-if ( RASPI_VNSTAT_ENABLED )                         include_once( 'includes/data_usage.php' );
+include_once( 'includes/networking.php' );
+include_once( 'includes/themes.php' );
+include_once( 'includes/data_usage.php' );
 
 $output = $return = 0;
-$page = $_GET['page'];
+if (isset($_GET['page'])) 
+    $page = $_GET['page'];
+else
+    $page = 'wlan0_info';
+
 
 if (empty($_SESSION['csrf_token'])) {
     if (function_exists('mcrypt_create_iv')) {
@@ -119,9 +123,15 @@ $theme_url = 'dist/css/'.htmlspecialchars($theme, ENT_QUOTES);
               <li>
                 <a href="index.php?page=wlan0_info"><i class="fa fa-dashboard fa-fw"></i> <?php echo _("Dashboard"); ?></a>
               </li>
+	      <?php if ( RASPI_WIFICLIENT_ENABLED ) : ?>
               <li>
-                <a href="index.php?page=wpa_conf"><i class="fa fa-signal fa-fw"></i> <?php echo _("Configure WiFi client"); ?></a>
-              </li>
+                <a href="index.php?page=wpa_cli_conf"><i class="fa fa-signal fa-fw"></i> <?php echo _("Configure WiFi client"); ?></a>
+	      </li>
+              <li>
+                <a href="index.php?page=wpa_conf"><i class="fa fa-signal fa-fw"></i> <?php echo _("Configure WiFi client OLD"); ?></a>
+	      </li>
+
+              <?php endif; ?>
               <?php if ( RASPI_HOTSPOT_ENABLED ) : ?>
               <li>
                 <a href="index.php?page=hostapd_conf"><i class="fa fa-dot-circle-o fa-fw"></i> <?php echo _("Configure hotspot"); ?></a>
@@ -190,6 +200,9 @@ $extraFooterScripts = array();
             break;
           case "dhcpd_conf":
             DisplayDHCPConfig();
+            break;
+          case "wpa_cli_conf":
+            DisplayWPACliConfig();
             break;
           case "wpa_conf":
             DisplayWPAConfig();
