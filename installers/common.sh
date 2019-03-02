@@ -109,9 +109,9 @@ function create_raspap_directories() {
     sudo mkdir -p "$raspap_dir/backups"
 
     # Create a directory to store networking configs
-    sudo mkdir -p "$raspap_dir/networking"
+    #sudo mkdir -p "$raspap_dir/networking"
     # Copy existing dhcpcd.conf to use as base config
-    cat /etc/dhcpcd.conf | sudo tee -a /etc/raspap/networking/defaults
+    #cat /etc/dhcpcd.conf | sudo tee -a /etc/raspap/networking/defaults
 
     sudo chown -R $raspap_user:$raspap_user "$raspap_dir" || install_error "Unable to change file ownership for '$raspap_dir'"
 }
@@ -125,8 +125,9 @@ function download_latest_files() {
     fi
 
     install_log "Cloning latest files from github"
-    git clone --depth 1 https://github.com/fustinoni-net/raspap-webgui /tmp/raspap-webgui || install_error "Unable to download files from github"
-    git -C /tmp/raspap-webgui checkout dev
+    #git clone --depth 1 https://github.com/fustinoni-net/raspap-webgui /tmp/raspap-webgui || install_error "Unable to download files from github"
+    git clone manhttps://github.com/fustinoni-net/raspap-webgui /tmp/raspap-webgui || install_error "Unable to download files from github"
+    git -C /tmp/raspap-webgui/ checkout dev
     sudo mv /tmp/raspap-webgui $webroot_dir || install_error "Unable to move raspap-webgui to web root"
 
 }
@@ -229,8 +230,9 @@ function  patch_system_files() {
         install_log "Sudoers file already patched"
     fi
 
-    chgrp -R www-data /etc/openvpn/client/
+    chgrp -R $raspap_user /etc/openvpn/client/
     chmod -R g+w /etc/openvpn/client/
+    usermod -a -G netdev $raspap_user
 }
 
 

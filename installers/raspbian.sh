@@ -1,5 +1,6 @@
+#!/bin/bash
 
-ERMES_INSTALL_DIR = $1
+ERMES_INSTALL_DIR=$1
 
 
 UPDATE_URL="https://raw.githubusercontent.com/fustinoni-net/raspap-webgui/dev/"
