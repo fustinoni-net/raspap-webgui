@@ -22,6 +22,7 @@ define('RASPI_HOSTAPD_CONFIG', '/etc/hostapd/hostapd.conf');
 define('RASPI_WPA_SUPPLICANT_CONFIG', '/etc/wpa_supplicant/wpa_supplicant.conf');
 define('RASPI_HOSTAPD_CTRL_INTERFACE', '/var/run/hostapd');
 
+define('RASPI_OPENVPN_CLIENT_CONFIG_DIR', '/etc/openvpn/client/');
 define('RASPI_OPENVPN_CLIENT_CONFIG', '/etc/openvpn/client.conf');
 define('RASPI_OPENVPN_SERVER_CONFIG', '/etc/openvpn/server.conf');
 define('RASPI_TORPROXY_CONFIG', '/etc/tor/torrc');
@@ -41,3 +42,4 @@ define('RASPI_WIFICLIENT_ENABLED', true );
 define('LOCALE_ROOT', 'locale');
 define('LOCALE_DOMAIN', 'messages'); 
 
+define('ERMES_INSTALL_DIR', '/home/pi/wifiExtender/');

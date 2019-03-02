@@ -54,7 +54,7 @@ function display_welcome() {
     echo -e " 88     88 88.  .88       88 88.  .88 88     88   88" 
     echo -e " dP     dP  88888P8  88888P  88Y888P  88     88   dP" 
     echo -e "                             88"                             
-    echo -e "                             dP"                             
+    echo -e "                             dP       Ermes edition"
     echo -e "${green}"
     echo -e "The Quick Installer will guide you through a few easy steps\n\n"
 }
@@ -91,6 +91,7 @@ function install_dependencies() {
 function enable_php_lighttpd() {
     install_log "Enabling PHP for lighttpd"
 
+
     sudo lighttpd-enable-mod fastcgi-php    
     sudo service lighttpd force-reload
     sudo /etc/init.d/lighttpd restart || install_error "Unable to restart lighttpd"
@@ -115,17 +116,6 @@ function create_raspap_directories() {
     sudo chown -R $raspap_user:$raspap_user "$raspap_dir" || install_error "Unable to change file ownership for '$raspap_dir'"
 }
 
-# Generate logging enable/disable files for hostapd
-function create_logging_scripts() {
-    install_log "Creating logging scripts"
-    sudo mkdir $raspap_dir/hostapd || install_error "Unable to create directory '$raspap_dir/hostapd'"
-
-    # Move existing shell scripts 
-    sudo mv "$webroot_dir/installers/"*log.sh "$raspap_dir/hostapd" || install_error "Unable to move logging scripts"
-    # Make enablelog.sh and disablelog.sh not writable by www-data group.
-    sudo chown -c root:"$raspap_user" "$raspap_dir/hostapd/"*log.sh || install_error "Unable change owner and/or group."
-    sudo chmod 750 "$raspap_dir/hostapd/"*log.sh || install_error "Unable to change file permissions."
-}
 
 
 # Fetches latest files from github to webroot
@@ -135,8 +125,8 @@ function download_latest_files() {
     fi
 
     install_log "Cloning latest files from github"
-    #git clone --depth 1 https://github.com/billz/raspap-webgui /tmp/raspap-webgui || install_error "Unable to download files from github"
-    cp -R ../../raspap-webgui/ /tmp/raspap-webgui
+    git clone --depth 1 https://github.com/fustinoni-net/raspap-webgui /tmp/raspap-webgui || install_error "Unable to download files from github"
+    git -C /tmp/raspap-webgui checkout dev
     sudo mv /tmp/raspap-webgui $webroot_dir || install_error "Unable to move raspap-webgui to web root"
 
 }
@@ -151,33 +141,6 @@ function change_file_ownership() {
     sudo chown -R $raspap_user:$raspap_user "$webroot_dir" || install_error "Unable to change file ownership for '$webroot_dir'"
 }
 
-# Check for existing /etc/network/interfaces and /etc/hostapd/hostapd.conf files
-function check_for_old_configs() {
-    if [ -f /etc/network/interfaces ]; then
-        sudo cp /etc/network/interfaces "$raspap_dir/backups/interfaces.`date +%F-%R`"
-        sudo ln -sf "$raspap_dir/backups/interfaces.`date +%F-%R`" "$raspap_dir/backups/interfaces"
-    fi
-
-    if [ -f /etc/hostapd/hostapd.conf ]; then
-        sudo cp /etc/hostapd/hostapd.conf "$raspap_dir/backups/hostapd.conf.`date +%F-%R`"
-        sudo ln -sf "$raspap_dir/backups/hostapd.conf.`date +%F-%R`" "$raspap_dir/backups/hostapd.conf"
-    fi
-
-    if [ -f /etc/dnsmasq.conf ]; then
-        sudo cp /etc/dnsmasq.conf "$raspap_dir/backups/dnsmasq.conf.`date +%F-%R`"
-        sudo ln -sf "$raspap_dir/backups/dnsmasq.conf.`date +%F-%R`" "$raspap_dir/backups/dnsmasq.conf"
-    fi
-
-    if [ -f /etc/dhcpcd.conf ]; then
-        sudo cp /etc/dhcpcd.conf "$raspap_dir/backups/dhcpcd.conf.`date +%F-%R`"
-        sudo ln -sf "$raspap_dir/backups/dhcpcd.conf.`date +%F-%R`" "$raspap_dir/backups/dhcpcd.conf"
-    fi
-
-    if [ -f /etc/rc.local ]; then
-        sudo cp /etc/rc.local "$raspap_dir/backups/rc.local.`date +%F-%R`"
-        sudo ln -sf "$raspap_dir/backups/rc.local.`date +%F-%R`" "$raspap_dir/backups/rc.local"
-    fi
-}
 
 # Move configuration file to the correct location
 function move_config_file() {
@@ -190,36 +153,6 @@ function move_config_file() {
     sudo chown -R $raspap_user:$raspap_user "$raspap_dir" || install_error "Unable to change file ownership for '$raspap_dir'"
 }
 
-# Set up default configuration
-function default_configuration() {
-    install_log "Setting up hostapd"
-    if [ -f /etc/default/hostapd ]; then
-        sudo mv /etc/default/hostapd /tmp/default_hostapd.old || install_error "Unable to remove old /etc/default/hostapd file"
-    fi
-    sudo mv $webroot_dir/config/default_hostapd /etc/default/hostapd || install_error "Unable to move hostapd defaults file"
-    sudo mv $webroot_dir/config/hostapd.conf /etc/hostapd/hostapd.conf || install_error "Unable to move hostapd configuration file"
-    sudo mv $webroot_dir/config/dnsmasq.conf /etc/dnsmasq.conf || install_error "Unable to move dnsmasq configuration file"
-    sudo mv $webroot_dir/config/dhcpcd.conf /etc/dhcpcd.conf || install_error "Unable to move dhcpcd configuration file"
-
-    # Generate required lines for Rasp AP to place into rc.local file.
-    # #RASPAP is for removal script
-    lines=(
-    'echo 1 > \/proc\/sys\/net\/ipv4\/ip_forward #RASPAP'
-    'iptables -t nat -A POSTROUTING -j MASQUERADE #RASPAP'
-
-    )
-    
-    for line in "${lines[@]}"; do
-        if grep "$line" /etc/rc.local > /dev/null; then
-            echo "$line: Line already added"
-        else
-            sudo sed -i "s/^exit 0$/$line\nexit 0/" /etc/rc.local
-            echo "Adding line $line"
-        fi
-    done
-}
-
-
 # Add a single entry to the sudoers file
 function sudo_add() {
     sudo bash -c "echo \"www-data ALL=(ALL) NOPASSWD:$1\" | (EDITOR=\"tee -a\" visudo)" \
@@ -228,6 +161,11 @@ function sudo_add() {
 
 # Adds www-data user to the sudoers file with restrictions on what the user can execute
 function  patch_system_files() {
+
+# Ricorda i permessi sudo chmod -R ugo=rw client su /etc/openvpn/client/
+
+
+
     # add symlink to prevent wpa_cli cmds from breaking with multiple wlan interfaces
     #install_log "symlinked wpa_supplicant hooks for multiple wlan interfaces"
     #sudo ln -s /usr/share/dhcpcd/hooks/10-wpa_supplicant /etc/dhcp/dhclient-enter-hooks.d/
@@ -242,7 +180,7 @@ function  patch_system_files() {
         "/sbin/wpa_cli -i wlan[0-9] scan_results"
         "/sbin/wpa_cli -i wlan[0-9] scan"
         "/sbin/wpa_cli -i wlan[0-9] reconfigure"
-	"/sbin/wpa_cli -i wlan[0-9] select_network"
+	    "/sbin/wpa_cli -i wlan[0-9] select_network"
         "/bin/cp /tmp/hostapddata /etc/hostapd/hostapd.conf"
         "/etc/init.d/hostapd start"
         "/etc/init.d/hostapd stop"
@@ -257,6 +195,21 @@ function  patch_system_files() {
         "/bin/cp /etc/raspap/networking/dhcpcd.conf /etc/dhcpcd.conf"
         "/etc/raspap/hostapd/enablelog.sh"
         "/etc/raspap/hostapd/disablelog.sh"
+        "/usr/sbin/openvpn"
+#        "/home/pi/wifiExtender/utils/system/setVPNRoute.sh"
+#        "/home/pi/wifiExtender/utils/system/removeVPNRoute.sh"
+#        "/home/pi/wifiExtender/utils/system/isBaseRouteEnable.sh"
+#        "/home/pi/wifiExtender/utils/system/setBaseRoute.sh"
+#        "/home/pi/wifiExtender/utils/system/removeBaseRoute.sh"
+#        "/home/pi/wifiExtender/setDnsMasqOptions.sh"
+        ${ERMES_INSTALL_DIR}"utils/system/setVPNRoute.sh"
+        ${ERMES_INSTALL_DIR}"utils/system/removeVPNRoute.sh"
+        ${ERMES_INSTALL_DIR}"utils/system/isBaseRouteEnable.sh"
+        ${ERMES_INSTALL_DIR}"utils/system/setBaseRoute.sh"
+        ${ERMES_INSTALL_DIR}"utils/system/removeBaseRoute.sh"
+        ${ERMES_INSTALL_DIR}"setDnsMasqOptions.sh"
+
+
     )
 
     # Check if sudoers needs patching
@@ -275,6 +228,9 @@ function  patch_system_files() {
     else
         install_log "Sudoers file already patched"
     fi
+
+    chgrp -R www-data /etc/openvpn/client/
+    chmod -R g+w /etc/openvpn/client/
 }
 
 
@@ -327,19 +283,16 @@ function install_complete() {
 }
 
 function install_raspap() {
-    #display_welcome
-    #config_installation
-    #update_system_packages
-    #install_dependencies
-    #optimize_php
-    #enable_php_lighttpd
-    #create_raspap_directories
-    #check_for_old_configs
+    display_welcome
+    config_installation
+    update_system_packages
+    install_dependencies
+    optimize_php
+    enable_php_lighttpd
+    create_raspap_directories
     download_latest_files
     change_file_ownership
-    create_logging_scripts
     move_config_file
-    ##default_configuration
     patch_system_files
     install_complete
 }

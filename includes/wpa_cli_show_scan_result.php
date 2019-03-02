@@ -19,17 +19,17 @@
                                 <ul class="list-group">
                                 <?php foreach ($ssid_array[$ssid] as $net) { ?>                    
                                     <li class="list-group-item">
-                                        BSSID: <span class="label label-default">  <?php echo htmlspecialchars($net->bssid, ENT_QUOTES); ?></span>
+                                        <strong>BSSID:</strong> <span class="label label-default">  <?php echo htmlspecialchars($net->bssid, ENT_QUOTES); ?></span>
                                         <ul class="list-group">
-                                            <li class="list-group-item">Status:
+                                            <li class="list-group-item"><strong>Status:</strong>
                                                 <?php if ('Open' === $net->protocol) { ?><i class="fa fa-unlock fa-fw"></i><?php } else { ?><i class="fa fa-lock fa-fw"></i><?php } ?>
                                                 <?php if ($net->configured) { ?><i class="fa fa-check-circle fa-fw"></i><?php } ?>
                                                 <?php if ($net->connected) { ?><i class="fa fa-exchange fa-fw"></i><?php } ?>
                                             </li>
-                                            <li class="list-group-item">Channel:<span class=""><?php echo htmlspecialchars($net->channel, ENT_QUOTES); ?> (<?php echo htmlspecialchars($net->frequency, ENT_QUOTES); ?> MHz)</span></li>
-                                            <li class="list-group-item">Signal:<span class=""><?php echo htmlspecialchars($net->signal, ENT_QUOTES); ?> dB <?php echoSignalPercentage($net->signal) ?></span></li>
-                                            <li class="list-group-item">Flags:<span class=""><?php echo htmlspecialchars($net->flags, ENT_QUOTES); ?></span></li>
-                                            <li class="list-group-item">Protocol:<span class=""><?php echo htmlspecialchars($net->protocol, ENT_QUOTES); ?></span></li>
+                                            <li class="list-group-item"><strong>Channel:</strong><span class=""><?php echo htmlspecialchars($net->channel, ENT_QUOTES); ?> (<?php echo htmlspecialchars($net->frequency, ENT_QUOTES); ?> MHz)</span></li>
+                                            <li class="list-group-item"><strong>Signal:</strong><span class=""><?php echo htmlspecialchars($net->signal, ENT_QUOTES); ?> dB <?php echoSignalPercentage($net->signal) ?></span></li>
+                                            <li class="list-group-item"><strong>Flags:</strong><span class=""><?php echo htmlspecialchars($net->flags, ENT_QUOTES); ?></span></li>
+                                            <li class="list-group-item"><strong>Protocol:</strong><span class=""><?php echo htmlspecialchars($net->protocol, ENT_QUOTES); ?></span></li>
                                             <li class="list-group-item">
                                                 <div class="btn-group btn-block ">
                                                   <?php if ($net->configured) { ?>

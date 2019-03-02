@@ -18,7 +18,7 @@
     //ESS extended service set
     //https://www.techopedia.com/definition/24968/extended-service-set-ess
 
-
+    define('EMPTY_SSID_REPlACE_STRING', '#');
 
     class NetworkListItem{
         public $network_id = '';
@@ -27,7 +27,7 @@
         public $flags = '';
 
         public $priority = 0;
-        public $enable = false;
+        public $disabled = false;
         public $psk = ''; // password for all mode
         public $scanSSID = false;
 
@@ -37,8 +37,6 @@
         public $wep_tx_keyidx = '';
         public $identity = '';
         public $eap = '';
-        public $disabled = false;
-
     }
 
 
@@ -54,7 +52,9 @@
 
 
     function getStatusResult(){
-        $status_info = array();
+        $status_info = [];
+        $known_return = [];
+        $return_err = 0;
         //exec('python '.WPA_PY_SCRIPT_PATH.'/wpaGateway.py STATUS' , $known_return);
         exec('wpa_cli_py '.RASPI_WIFI_CLIENT_INTERFACE.' STATUS 2>&1' , $known_return, $return_err);
         if ($return_err != 0){
@@ -71,13 +71,12 @@
 
     function getListNetworksItemResult(){
 
-
-        $networks_list = array();
-        //exec('python '.WPA_PY_SCRIPT_PATH.'/wpaGateway.py list_networks' , $known_return);
+        $networks_list = [];
+        $known_return = [];
+        $return_err = 0;
         exec('wpa_cli_py '.RASPI_WIFI_CLIENT_INTERFACE.' list_networks 2>&1' , $known_return, $return_err);
         if ($return_err != 0){
             throw new WpaCliException(implode("\n",$known_return), $return_err);
-            //$known_return = array();
         }
 
         array_shift($known_return);
@@ -86,11 +85,9 @@
             if (trim($line) == 'network id / ssid / bssid / flags') continue;
             if (trim($line) == '') continue;
             $lineArr = preg_split('/[\t]/', trim($line));
-            //error_log(trim($line).' '.count($lineArr));
-            //if (count($lineArr) < 2) continue;
 
             $ssid = trim($lineArr[1], ' ');
-            if ($ssid == '') $ssid = '-';
+            if ($ssid == '') $ssid = EMPTY_SSID_REPlACE_STRING;
 
             $network_item = new NetworkListItem();
             $network_item->bssid = trim($lineArr[2]);
@@ -146,7 +143,7 @@
             $network->flags = trim($lineArr[3], ' ');
 
             $ssid = trim($lineArr[4], ' ');
-            if ($ssid == '') $ssid = '-';
+            if ($ssid == '') $ssid = EMPTY_SSID_REPlACE_STRING;
             $network->ssid = $ssid;
 
             $network->configured = false;
@@ -214,7 +211,7 @@
     
     //"hp:i:s:b:p:P:r:ek:I:E:",["protocol=","idNet=","ssid=","bssid=","password=","priority=","keyMgmt=","identity=","eap="]
     //wpaCreateNet.py -p (--protocol) -i (--idNet) -s (--ssid) -b (--bssid) -P (--password) -r (--priority) -e -k (--keyMgmt) -I (--identity) -E (--eap)
-    function createNetwork($protocol, $idNet, $ssid, $bssid, $password, $priority, $enable, $keyMgmt, $identity, $eap){
+    function createNetwork($protocol, $idNet, $ssid, $bssid, $password, $priority, $disable, $keyMgmt, $identity, $eap, $scanSsid){
         
         $parameters ='';
         
@@ -224,7 +221,7 @@
         if ($idNet!= null)
             $parameters .= ' -i '.$idNet;
 
-        if ($ssid!= null)
+        if ($ssid!= null && $ssid != EMPTY_SSID_REPlACE_STRING)
             $parameters .= ' -s "'.$ssid.'"';
         
         if ($bssid!= null)
@@ -236,8 +233,8 @@
         if ($priority!= null)
             $parameters .= ' -r '.$priority;
         
-        if ($enable == true)
-            $parameters .= ' -e ';
+        if ($disable == true)
+            $parameters .= ' -d';
 
         if ($keyMgmt != null)
             $parameters .= ' -k '.$keyMgmt;
@@ -247,15 +244,19 @@
         
         if ($eap!= null)
             $parameters .= ' -E '.$eap;
-        
+
+        if ($scanSsid == true)
+            $parameters .= ' --scanSsid';
+
+
         $return_value = null;
-        exec ( 'wpa_cli_py_create_network '.$parameters.' '.RASPI_WIFI_CLIENT_INTERFACE.' '.$protocol.' 2>&1' ,$known_return, $return_err );
-        error_log($parameters.' '.implode("\n",$known_return).' '.strval($return_err));
+        exec ( 'wpa_cli_py_create_network '.$parameters.' '.RASPI_WIFI_CLIENT_INTERFACE.' '.$protocol.' 2>&1' ,$return_value, $return_err );
+        error_log($parameters.' '.implode("\n",$return_value).' '.strval($return_err));
         if ($return_err != 0){
-            throw new WpaCliException(implode("\n",$known_return), $return_err);
+            throw new WpaCliException(implode("\n",$return_value), $return_err);
         }
-        array_push($known_return, $parameters);
-        return $known_return;
+        array_push($return_value, $parameters);
+        return $return_value;
     }
 
     
@@ -264,19 +265,20 @@
         $networks = array();
         $network = null;
 
+        $return_value = null;        
         // Find currently configured networks
-        exec(' sudo cat ' . RASPI_WPA_SUPPLICANT_CONFIG, $known_return);
+        exec(' sudo cat ' . RASPI_WPA_SUPPLICANT_CONFIG, $return_value);
 
-        foreach ($known_return as $line) {
+        foreach ($return_value as $line) {
             if (preg_match('/network\s*=/', $line)) {
                 $network = new NetworkListItem();
                 $network->protocol = 'OPEN';
             } elseif ($network !== null) {
                 if (preg_match('/^\s*}\s*$/', $line)) {
-                    error_log ("Network: ".json_encode($network));
+                    //error_log ("Network: ".json_encode($network));
                     array_push($networks, $network);
                 } elseif ($lineArr = preg_split('/\s*=\s*/', trim($line))) {
-                    error_log("Line: ".$line);
+                    //error_log("Line: ".$line);
                     if(!isset($lineArr[1])) continue;
                     $keyName = strtolower($lineArr[0]);
                     $keyValue = trim($lineArr[1], '"');
@@ -305,6 +307,7 @@
                             $network->wep_tx_keyidx = $keyValue;
                             $network->protocol = 'WEP';
                             break;
+                        case 'password':
                         case 'psk':
                             $network->psk = $keyValue;
                             $network->protocol = 'WPA';
@@ -323,10 +326,6 @@
                 }
             }
         }
-
         return $networks;
-    
    }
-    
-    
 ?>

@@ -35,6 +35,7 @@ include_once( 'includes/wpa_cli_client.php' );
 include_once( 'includes/networking.php' );
 include_once( 'includes/themes.php' );
 include_once( 'includes/data_usage.php' );
+include_once( 'includes/openVPN_manager.php' );
 
 $output = $return = 0;
 if (isset($_GET['page'])) 
@@ -112,7 +113,7 @@ $theme_url = 'dist/css/'.htmlspecialchars($theme, ENT_QUOTES);
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-	  <a class="navbar-brand" href="index.php"><?php echo _("RaspAP Wifi Portal"); ?> v<?php echo RASPI_VERSION; ?></a>
+	  <a class="navbar-brand" href="index.php"><?php echo _("RaspAP Wifi Portal"); ?> v<?php echo RASPI_VERSION; ?> ERMES edition</a> 
         </div>
         <!-- /.navbar-header -->
 
@@ -214,7 +215,8 @@ $extraFooterScripts = array();
             DisplayHostAPDConfig();
             break;
           case "openvpn_conf":
-            DisplayOpenVPNConfig();
+            //DisplayOpenVPNConfig();
+            DisplayOpenVPNManager();
             break;
           case "torproxy_conf":
             DisplayTorProxyConfig();

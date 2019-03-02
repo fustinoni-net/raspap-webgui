@@ -1,5 +1,6 @@
 <?php
 
+include_once('dnsmasqConf/dnsmasqConf.php');
 /**
 *
 *
@@ -181,6 +182,21 @@ function DisplayDashboard(){
   } else {
     $status->addMessage(sprintf(_('Interface is %s.'), strtolower($interfaceState)), $classMsgDevicestatus);
   }
+
+  
+  //Here the jail
+  if (isset($_POST['set_jail'])) {
+      exec('sudo '.ERMES_INSTALL_DIR.'utils/system/removeBaseRoute.sh '.RASPI_WIFI_CLIENT_INTERFACE);
+  }elseif (isset($_POST['unset_jail'])) {
+      exec('sudo '.ERMES_INSTALL_DIR.'utils/system/setBaseRoute.sh '.RASPI_WIFI_CLIENT_INTERFACE);
+  }
+
+  exec('sudo '.ERMES_INSTALL_DIR.'utils/system/isBaseRouteEnable.sh '.RASPI_WIFI_CLIENT_INTERFACE, $stdoutIBRE);
+  $stdoutIBREAllLinesGlued = implode("", $stdoutIBRE);
+  error_log(ERMES_INSTALL_DIR.'utils/system/isBaseRouteEnable.sh '.RASPI_WIFI_CLIENT_INTERFACE.": ".$stdoutIBREAllLinesGlued);
+  
+  
+  
   ?>
   <div class="row">
       <div class="col-lg-12">
@@ -229,6 +245,8 @@ function DisplayDashboard(){
                       </div><!-- /.col-md-6 -->
                     </div><!-- /.row -->
 
+                  <?php  DisplayDnsMasqConf("wlan0_info") ;?>
+
                  <div class="col-lg-12">
                  <div class="row">
                     <form action="?page=wlan0_info" method="POST">
@@ -237,8 +255,14 @@ function DisplayDashboard(){
                     } else {
                       echo '<input type="submit" class="btn btn-warning" value="'._("Stop ").RASPI_WIFI_CLIENT_INTERFACE.'"  name="ifdown_wlan0" />';
                     }
-              ?>
-              <input type="button" class="btn btn-outline btn-primary" value="<?php echo _("Refresh"); ?>" onclick="document.location.reload(true)" />
+                    ?>
+                    <?php if ( $stdoutIBREAllLinesGlued=='true' ) {
+                      echo '<input type="submit" class="btn btn-success" value="'._("Set jail ").RASPI_WIFI_CLIENT_INTERFACE.'" name="set_jail" />';
+                    } else {
+                      echo '<input type="submit" class="btn btn-warning" value="'._("Unset jail ").RASPI_WIFI_CLIENT_INTERFACE.'"  name="unset_jail" />';
+                    }
+                    ?>
+                    <input type="button" class="btn btn-outline btn-primary" value="<?php echo _("Refresh"); ?>" onclick="document.location.reload(true)" />
               </form>
             </div>
               </div>
@@ -281,4 +305,3 @@ function getHumanReadableDatasize($numbytes, $precision = 2)
 
   return $humanDatasize;
 }
-

@@ -1,5 +1,5 @@
 <?php
-    function showUp($status) 
+    function showUp(StatusMessages $status)
 
     {?>
         <div class="row">
@@ -16,9 +16,8 @@
 
                     <form method="POST" action="?page=wpa_cli_conf" name="wpa_cli_conf_form">
                         <?php CSRFToken() ?>
-<?php 
-    } 
-?>
+<?php } ?>
+
 <?php function showDown() {?>
                     </form>
                 </div><!-- ./ Panel body -->

@@ -57,6 +57,7 @@
 //                        pwd
      
      ?>       
+<div class="form-group">
         <script>
          function showPassword() {
              var x = document.getElementsByName("psk")[0];
@@ -116,8 +117,9 @@
                 -->
                 <div class="form-group">
                     <label for="identity">Identity</label>
-                    <input class="form-control" name="identity" id="ssid" type="text" >
-                </div>        
+                    <?php //error_log("Network: ".json_encode($net)); ?>
+                    <input class="form-control" name="identity" id="ssid" type="text" <?php  if ($net->configuration_data != null && '' != $net->configuration_data->identity) echo 'value="'.$net->configuration_data->identity.'"' ; ?>>
+                </div> 
                 <div class="form-group">
                     <label for="psk">PASSFRASE</label>
                     <input class="form-control" name="psk" id="psk" type="password" value="<?php  if ($net->configuration_data != null) echo $net->configuration_data->psk ; ?>" onKeyUp="CheckPSK(this, 'update')">
@@ -127,7 +129,7 @@
                 </div>                
                 <div class="form-group">
                     <label for="eap">EAP</label>
-                    <select class="form-control" id="eap" name="eap">
+                    <select class="form-control" id="eap" name="eap" <?php  if ($net->configuration_data != null) echo 'value="'.$net->configuration_data->priority.'"' ; ?>>
                         <option value="PEAP" >peap</option>
                         <option value="TLS" >tls</option>
                         <option value="TTLS" >ttls</option>
@@ -141,7 +143,7 @@
                 </div>                                
                 <div class="form-group">
                     <label for="key_mgmt">key_mgmt</label>
-                    <select class="form-control" id="key_mgmt" name="key_mgmt">
+                    <select class="form-control" id="key_mgmt" name="key_mgmt" <?php  if ($net->configuration_data != null) echo 'value="'.$net->configuration_data->key_mgmt.'"' ; ?>>
                         <option value="NONE"                >NONE</option>
                         <option value="WPA-PSK"             >WPA-PSK</option>
                         <option value="WPA-EAP"             >WPA-EAP</option>
@@ -191,16 +193,19 @@
                 </datalist>                
             </div>                        
             <div class="form-group">
-                <label for="enabled">ENABLE</label>
-                <input class="form-control" id="enabled" name="enabled" type="checkbox" <?php  if ($net->configuration_data != null && !$net->configuration_data->disabled) echo 'checked'; else echo 'checked' ?>>
-            </div>                
+                <label for="disabled">DISABLE</label>
+                <input class="form-control" id="disabled" name="disabled" type="checkbox" <?php  if ($net->configuration_data != null && $net->configuration_data->disabled) echo 'checked'; ?>>
+            </div>
             <div class="form-group">
                 <label for="scan_ssid">SCAN SSID</label>
                 <input class="form-control" id="scan_ssid" name="scan_ssid" type="checkbox" <?php  if ($net->configuration_data != null && $net->configuration_data->scanSSID) echo 'checked'; ?>>
-            </div>                
+            </div>
             <div class="form-group">
                 <div class="btn-group btn-block ">
-                    <button type="submit" class="col-xs-4 col-md-4 btn btn-info" name = "addNetwork" value="addNetwork" ><?php echo _("Add"); ?></button>        
+                    <button type="submit" class="col-xs-4 col-md-4 btn btn-warning" name = "addNetwork" value="addNetwork" >
+                        <?php if ($net->configuration_data !== null && $net->configuration_data->network_id !== ''){echo _("Update");} else {echo _("Add");} ?>
+                    </button>
                 </div>
             </div>
+</div>
 <?php } ?>
