@@ -92,7 +92,7 @@ function enable_php_lighttpd() {
     install_log "Enabling PHP for lighttpd"
 
 
-    sudo lighttpd-enable-mod fastcgi-php    
+    sudo lighttpd-enable-mod fastcgi-php
     sudo service lighttpd force-reload
     sudo /etc/init.d/lighttpd restart || install_error "Unable to restart lighttpd"
 }
@@ -163,10 +163,6 @@ function sudo_add() {
 # Adds www-data user to the sudoers file with restrictions on what the user can execute
 function  patch_system_files() {
 
-# Ricorda i permessi sudo chmod -R ugo=rw client su /etc/openvpn/client/
-
-
-
     # add symlink to prevent wpa_cli cmds from breaking with multiple wlan interfaces
     #install_log "symlinked wpa_supplicant hooks for multiple wlan interfaces"
     #sudo ln -s /usr/share/dhcpcd/hooks/10-wpa_supplicant /etc/dhcp/dhclient-enter-hooks.d/
@@ -181,7 +177,7 @@ function  patch_system_files() {
         "/sbin/wpa_cli -i wlan[0-9] scan_results"
         "/sbin/wpa_cli -i wlan[0-9] scan"
         "/sbin/wpa_cli -i wlan[0-9] reconfigure"
-	    "/sbin/wpa_cli -i wlan[0-9] select_network"
+	"/sbin/wpa_cli -i wlan[0-9] select_network"
         "/bin/cp /tmp/hostapddata /etc/hostapd/hostapd.conf"
         "/etc/init.d/hostapd start"
         "/etc/init.d/hostapd stop"
@@ -197,12 +193,6 @@ function  patch_system_files() {
         "/etc/raspap/hostapd/enablelog.sh"
         "/etc/raspap/hostapd/disablelog.sh"
         "/usr/sbin/openvpn"
-#        "/home/pi/wifiExtender/utils/system/setVPNRoute.sh"
-#        "/home/pi/wifiExtender/utils/system/removeVPNRoute.sh"
-#        "/home/pi/wifiExtender/utils/system/isBaseRouteEnable.sh"
-#        "/home/pi/wifiExtender/utils/system/setBaseRoute.sh"
-#        "/home/pi/wifiExtender/utils/system/removeBaseRoute.sh"
-#        "/home/pi/wifiExtender/setDnsMasqOptions.sh"
         ${ERMES_INSTALL_DIR}"utils/system/setVPNRoute.sh"
         ${ERMES_INSTALL_DIR}"utils/system/removeVPNRoute.sh"
         ${ERMES_INSTALL_DIR}"utils/system/isBaseRouteEnable.sh"
@@ -274,14 +264,6 @@ function optimize_php() {
 
 function install_complete() {
     install_log "Installation completed!"
-
-    echo -n "The system needs to be rebooted as a final step. Reboot now? [y/N]: "
-    read answer
-    if [[ $answer != "y" ]]; then
-        echo "Installation reboot aborted."
-        exit 0
-    fi
-    sudo shutdown -r now || install_error "Unable to execute shutdown"
 }
 
 function install_raspap() {
