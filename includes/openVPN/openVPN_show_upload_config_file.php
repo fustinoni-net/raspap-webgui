@@ -16,6 +16,18 @@ function showUploadConfigFile(){
                     </div>
                 </div>
             </form>
+                <div class="row">
+                    <div class="form-group col-md-8">
+                        To use the VPN upload an ovpn file with the OpenVPN configuration.<br>
+                        If the certificate key is password protected:
+                        <ul>
+                            <li>Create a .pass file containing the password.</li>
+                            <li>Include into the ovpn file the line:<br>
+                                <code> askpass /etc/openvpn/client/key.pass</code><br> (Instead of 'key' use the name of your .pass file) </li>
+                            <li>Upload the .ovpn file and the .pass file. </li>
+                        </ul>
+                    </div>
+                </div>
         </div>
     </div>
 

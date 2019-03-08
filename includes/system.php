@@ -33,7 +33,13 @@ function RPiVersion() {
     '900093' => 'PiZero 1.3',
     '9000c1' => 'PiZero W',
     'a02082' => 'Pi 3 Model B',
-    'a22082' => 'Pi 3 Model B'
+    'a22082' => 'Pi 3 Model B',
+    'a32082' => 'Pi 3 Model B',
+    'a52082' => 'Pi 3 Model B',
+    'a020d3' => 'Pi 3 Model B+',
+    'a220a0' => 'Compute Module 3',
+    'a020a0' => 'Compute Module 3',
+    'a02100' => 'Compute Module 3+',
   );
 
   $cpuinfo_array = '';
@@ -77,7 +83,9 @@ function DisplaySystem(){
     'zh_CN.UTF-8' => '简体中文 (Chinese simplified)',
     'cs_CZ.UTF-8' => 'Čeština',
     'ru_RU.UTF-8' => 'Русский',
-    'es_MX.UTF-8' => 'Español'
+    'es_MX.UTF-8' => 'Español',
+    'fi_FI.UTF-8' => 'Finnish',
+    'si_LK.UTF-8' => 'Sinhala'
   );
 
   // hostname

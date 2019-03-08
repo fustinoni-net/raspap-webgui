@@ -5,18 +5,6 @@ function showStartStopVPN(Array $files_array, bool $isVPNRunning){
         <div class="panel-body">
 
             <form role="form" action="?page=openvpn_conf" method="POST">
-                <script>
-                    function showPassword() {
-                        var x = document.getElementsByName("psk")[0];
-                        if (x.type === "password") {
-                            x.type = "text";
-                        } else {
-                            x.type = "password";
-                        }
-                    }
-                </script>
-
-
 
                 <div class="row">
                     <div class="form-group col-md-8">
@@ -32,11 +20,8 @@ function showStartStopVPN(Array $files_array, bool $isVPNRunning){
                 </div>
                 <div class="row">
                     <div class="form-group col-md-8">
-                        <label for="psk">PASSFRASE</label>
-                        <input class="form-control" name="psk" id="psk" type="password">
-                            <span class="input-group-btn">
-                                <button class="btn btn-default" onclick="showPassword()" type="button">Show</button>
-                            </span>
+                        <label for="ipServer">Optional the IP address of the OpenVPN server</label>
+                        <input class="form-control" name="ipServer" id="ipServer" type="text" pattern="[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}">
                     </div>
                 </div>
                 <div class="row">
@@ -54,7 +39,6 @@ function showStartStopVPN(Array $files_array, bool $isVPNRunning){
                 </div>
 
             </form>
-
         </div>
     </div>
 <?php

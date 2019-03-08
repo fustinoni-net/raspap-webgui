@@ -2,8 +2,7 @@
 
 include_once('dnsmasqConf/dnsmasqConf.php');
 /**
-*
-*
+* Show dashboard page.
 */
 function DisplayDashboard(){
 

@@ -27,7 +27,10 @@ function DisplayOpenVPNManager() {
 
     if (isset($_POST["StartOpenVPN"])){
         //Abilitare il routing
-        startVPN(strval($_POST["confFileName"]));
+        
+        $idAddr = isset($_POST['ipServer']) ? strval($_POST['ipServer'])  : null;
+        
+        startVPN(strval($_POST["confFileName"]), $idAddr);
     }
     
     if (isset($_POST["StopOpenVPN"])){

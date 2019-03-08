@@ -116,6 +116,17 @@ function create_raspap_directories() {
     sudo chown -R $raspap_user:$raspap_user "$raspap_dir" || install_error "Unable to change file ownership for '$raspap_dir'"
 }
 
+# Generate logging enable/disable files for hostapd
+function create_logging_scripts() {
+    install_log "Creating logging scripts"
+    sudo mkdir $raspap_dir/hostapd || install_error "Unable to create directory '$raspap_dir/hostapd'"
+
+    # Move existing shell scripts 
+    sudo mv "$webroot_dir/installers/"*log.sh "$raspap_dir/hostapd" || install_error "Unable to move logging scripts"
+    # Make enablelog.sh and disablelog.sh not writable by www-data group.
+    sudo chown -c root:"$raspap_user" "$raspap_dir/hostapd/"*log.sh || install_error "Unable change owner and/or group."
+    sudo chmod 750 "$raspap_dir/hostapd/"*log.sh || install_error "Unable to change file permissions."
+}
 
 
 # Fetches latest files from github to webroot
@@ -276,6 +287,7 @@ function install_raspap() {
     create_raspap_directories
     download_latest_files
     change_file_ownership
+    create_logging_scripts
     move_config_file
     patch_system_files
     install_complete

@@ -88,14 +88,23 @@
     
     function stopVPN(){
         exec('sudo '.ERMES_INSTALL_DIR.'utils/system/removeVPNRoute.sh', $return);
-        error_log("Stop: ".implode("\n",$return));
+        //error_log("Stop: ".implode("\n",$return));
         return unixSocketCom('signal SIGTERM');
     }
     
-    function startVPN($fileName){
+    function startVPN($fileName, $ipAddress){
         exec('sudo '.ERMES_INSTALL_DIR.'utils/system/setVPNRoute.sh', $return);
-        error_log("Start string: ".'sudo '.ERMES_INSTALL_DIR.'utils/system/setVPNRoute.sh');
-        error_log("Start: ".implode("\n",$return));
-        exec( 'sudo openvpn  --config '.$fileName.' --management '.OPENVPN_UNIX_SOCKET.' unix  > /dev/null 2>&1 &');
+        //error_log("Start string: ".'sudo '.ERMES_INSTALL_DIR.'utils/system/setVPNRoute.sh');
+        //error_log("Start: ".implode("\n",$return));
+        
+        if($ipAddress!= null){
+            //error_log("IP: ".$ipAddress);
+            //error_log('sudo openvpn  --config '.$fileName.'  --remote '.$ipAddress.' --management '.OPENVPN_UNIX_SOCKET.' unix  > /dev/null 2>&1 &');
+            exec( 'sudo openvpn  --config '.$fileName.'  --remote '.$ipAddress.' --management '.OPENVPN_UNIX_SOCKET.' unix  > /dev/null 2>&1 &');
+        }else{
+            //error_log('sudo openvpn  --config '.$fileName.' --management '.OPENVPN_UNIX_SOCKET.' unix  > /dev/null 2>&1 &');
+            exec( 'sudo openvpn  --config '.$fileName.' --management '.OPENVPN_UNIX_SOCKET.' unix  > /dev/null 2>&1 &');
+        }
+        
         sleep(1);
     }

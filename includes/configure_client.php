@@ -58,7 +58,6 @@ function DisplayWPAConfig(){
     if ($wpa_file = fopen('/tmp/wifidata', 'w')) {
       fwrite($wpa_file, 'ctrl_interface=DIR=' . RASPI_WPA_CTRL_INTERFACE . ' GROUP=netdev' . PHP_EOL);
       fwrite($wpa_file, 'update_config=1' . PHP_EOL);
-      fwrite($wpa_file, 'country=' . RASPI_WIFI_COUNTRY_CODE . PHP_EOL);
 
       foreach(array_keys($_POST) as $post) {
         if (preg_match('/delete(\d+)/', $post, $post_match)) {
@@ -132,9 +131,7 @@ function DisplayWPAConfig(){
   sleep(3);
   exec( 'sudo wpa_cli -i ' . RASPI_WIFI_CLIENT_INTERFACE . ' scan_results',$scan_return );
 
-  for( $shift = 0; $shift < 2; $shift++ ) {
-    array_shift($scan_return);
-  }
+  array_shift($scan_return);
 
   // display output
   foreach( $scan_return as $network ) {
@@ -172,7 +169,7 @@ function DisplayWPAConfig(){
 
   <div class="row">
     <div class="col-lg-12">
-      <div class="panel panel-primary">
+      <div class="panel panel-primary"> 
         <div class="panel-heading"><i class="fa fa-signal fa-fw"></i> <?php echo _("Configure client"); ?></div>
         <!-- /.panel-heading -->
         <div class="panel-body">
@@ -180,7 +177,7 @@ function DisplayWPAConfig(){
           <h4><?php echo _("Client settings"); ?></h4>
               <div class="btn-group btn-block">
 	          <a href=".?<?php echo htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES); ?>" style="padding:10px;float: right;display: block;position: relative;margin-top: -55px;" class="col-md-2 btn btn-info" id="update"><?php echo _("Rescan"); ?></a>
-	        </div>
+	        </div> 
 
             <form method="POST" action="?page=wpa_conf" name="wpa_conf_form">
               <?php CSRFToken() ?>
@@ -198,7 +195,7 @@ function DisplayWPAConfig(){
 
               <?php $index = 0; ?>
               <?php foreach ($networks as $ssid => $network) { ?>
-
+ 
               <div class="col-md-6">
                 <div class="panel panel-default">
                   <div class="panel-body">
@@ -255,8 +252,8 @@ function DisplayWPAConfig(){
                   <div class="form-group">
                     <div class="input-group col-xs-12 col-md-12">
                       <span class="input-group-addon" id="passphrase">Passphrase</span>
-                      <?php if ($network['protocol'] === 'Open') { ?>
-                          <input type="hidden" name="passphrase<?php echo $index ?>" value="" />---
+                      <?php if ($network['protocol'] === 'Open') { ?> 
+                          <input type="hidden" name="passphrase<?php echo $index ?>" value="" />--- 
                       <?php } else { ?>
                           <input type="password" class="form-control" aria-describedby="passphrase" name="passphrase<?php echo $index ?>" value="<?php echo $network['passphrase'] ?>" onKeyUp="CheckPSK(this, 'update<?php echo $index?>')" >
                           <span class="input-group-btn">
