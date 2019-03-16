@@ -1,5 +1,5 @@
  <?php function showCancelNetworkData($net) { ?>       
- 
+    <h3><?php echo _("Cancel network"); ?></h3>
         <input type="hidden" name="oldNetData" value="<?php echo urlencode (json_encode($net)); ?>">
 
             <div class="form-group">

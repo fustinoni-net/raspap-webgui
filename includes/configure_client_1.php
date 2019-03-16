@@ -11,6 +11,7 @@ function DisplayWPAConfig(){
   // Find currently configured networks
   exec(' sudo cat ' . RASPI_WPA_SUPPLICANT_CONFIG, $known_return);
 
+  $debugOut = null;
   $network = null;
   $ssid = null;
 
@@ -50,16 +51,20 @@ function DisplayWPAConfig(){
   }
 
 
+    $known_return = null;
     $networks_list = array();
-    exec('python /home/pi/wifiExtender/utils/wpa_supplicant/wpaTcpGateway.py list_networks ' . RASPI_WPA_SUPPLICANT_CONFIG, $known_return);
- for( $shift = 0; $shift < 2; $shift++ ) {
-    $known_return = array_shift($known_return);
-  }
-
+    exec('python /home/pi/wifiExtender/utils/wpa_supplicant/wpaGateway.py list_networks' , $known_return);
+ 
+    $debugOut = $known_return[0];    
+    array_shift($known_return);
+  
     foreach($known_return as $line) {
+        if (trim($line) == 'network id / ssid / bssid / flags') continue;
+        
         $network = array('visible' => false, 'configured' => true, 'connected' => false);
         $lineArr = preg_split('/[\t]+/', trim($line));
         $network['id'] = trim($lineArr[0], ' ');
+        //if ($network['id'] == 'network id / ssid / bssid / flags') continue;
         $ssid = trim($lineArr[1], ' ');
         if ($ssid == '') $ssid = '-';
         $network['ssid'] = $ssid;
@@ -70,7 +75,9 @@ function DisplayWPAConfig(){
 
    if ( isset($_POST['connect']) ) {
     $result = 0;
-    exec ( 'sudo wpa_cli -i ' . RASPI_WPA_CTRL_INTERFACE . ' select_network '.strval($_POST['connect'] ));
+    //exec ( 'sudo wpa_cli -i ' . RASPI_WPA_CTRL_INTERFACE . ' select_network '.strval($_POST['connect'] ));
+    exec ( 'python /home/pi/wifiExtender/utils/wpa_supplicant/wpaTcpGateway.py select_network '.strval($_POST['connect'] ));
+    
   }
   else if ( isset($_POST['client_settings']) && CSRFValidate() ) {
     $tmp_networks = $networks;
@@ -151,7 +158,10 @@ function DisplayWPAConfig(){
   sleep(3);
   exec( 'sudo wpa_cli -i ' . RASPI_WIFI_CLIENT_INTERFACE . ' scan_results',$scan_return );
 
-  for( $shift = 0; $shift < 2; $shift++ ) {
+  //exec( 'python /home/pi/wifiExtender/utils/wpa_supplicant/wpaScanResults.py',$scan_return );
+  
+  
+  for( $shift = 0; $shift < 1; $shift++ ) {
     array_shift($scan_return);
   }
 
@@ -209,6 +219,8 @@ function DisplayWPAConfig(){
 		echo '<br>';
             }
             ?>
+                <p>Debug: <?php echo $debugOut ?>
+                <p></p>
 
             <h4><?php echo _("Client settings"); ?></h4>
               <div class="btn-group btn-block">

@@ -66,6 +66,8 @@ function DisplayDnsMasqConf($formLandingPage){
                                   <div class="form-group">
                                       <label for="adsBlock">ADS Block</label>
                                       <input class="form-control" id="adsBlock" name="adsBlock" type="checkbox" <?php  if ($dnsMasqConf->setADSBlock) {echo 'checked';} ?>>
+                                      <!--input id="adsBlock" name="adsBlock" type="checkbox" class="form-check-input" data-toggle="toggle" data-on="Enabled" data-off="Disabled" data-width="100"  <?php  if ($dnsMasqConf->setADSBlock) {echo 'checked';} ?>-->
+                                      <!--input id="chxwificlientap" name="wifiAPEnable" type="checkbox" class="form-check-input" data-toggle="toggle" data-on="Enabled" data-off="Disabled" data-width="100" value="1" checked="checked" /-->
                                   </div>
                                   <div class="form-group">
                                       <label for="connCheck">Local Android connection check </label>

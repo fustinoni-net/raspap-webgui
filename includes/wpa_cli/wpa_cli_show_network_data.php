@@ -56,7 +56,69 @@
 //                        identità
 //                        pwd
      
+     function getProtocol($net){
+        if ( $net->flags == ''){
+            return $net->protocol;
+        }
+        else{
+            if (strpos($net->flags, "EAP")!= false){ 
+                return "EAP";
+            }elseif (strpos($net->flags, "WPA2") != false){
+                return "WPA2";
+            }elseif (strpos($net->flags, "WPA") != false){
+                return "WPA";
+            }elseif (strpos($net->flags, "WEP") != false) {
+                return "WEP";
+            } else {
+                return "OPEN";
+            }
+        }
+     }
+
+     error_log("wpa_cli_show_network:net: " . json_encode($net));
+     $showConfDataValue = isset($net->configuration_data);
+     
+     if ($showConfDataValue){
+         $configData = $net->configuration_data;
+         $bssidSelected = ($showConfDataValue && $configData->bssid == $net->bssid);
+         $bssid = $net->bssid;
+     }else{
+         $configData = $net;
+         $bssidSelected = $configData->bssid != '';
+         $bssid = (isset($configData->bssid)) ? $configData->bssid : '';
+     }     
+     
+      error_log("wpa_cli_show_network:configData: " . json_encode($configData));
+     
+     $oldNetData = urlencode (json_encode($net));
+
+     $ssid = $configData->ssid;
+     
+
+     $idNet =  (isset($configData->network_id) && $configData->network_id !== '') ? $configData->network_id : '';
+     $protocol = getProtocol($configData);
+     
+//     $identity = ($showConfDataValue && isset($configData->identity)) ? $configData->identity : '';
+//     $showIdentity = $showConfDataValue && '' != $identity;
+//     $psk = ($showConfDataValue && isset($configData->psk)) ? $configData->psk : '';
+//     $eap = ($showConfDataValue && isset($configData->eap)) ? $configData->eap : '';
+//     $key_mgmt = ($showConfDataValue && isset($configData->key_mgmt)) ? $configData->key_mgmt : '';
+//     $priority = ($showConfDataValue && isset($configData->priority)) ? $configData->priority : 0;
+//     $disabled = ($showConfDataValue && isset($configData->disabled)) ? $configData->disabled : false;
+//     $scanSSID = ($showConfDataValue && isset($configData->scanSSID)) ? $configData->scanSSID : false;
+//     
+     $identity = (isset($configData->identity)) ? $configData->identity : '';
+     $showIdentity = '' != $identity;
+     $psk = (isset($configData->psk)) ? $configData->psk : '';
+     error_log("wpa_cli_show_network:psk: " . $psk);
+     $eap = (isset($configData->eap)) ? $configData->eap : '';
+     $key_mgmt = (isset($configData->key_mgmt)) ? $configData->key_mgmt : '';
+     $priority = (isset($configData->priority)) ? $configData->priority : 0;
+     $disabled = (isset($configData->disabled)) ? $configData->disabled : false;
+     $scanSSID = (isset($configData->scanSSID)) ? $configData->scanSSID : false;
+          
      ?>       
+<h3><?php echo _("Network data"); ?></h3>
 <div class="form-group">
         <script>
          function showPassword() {
@@ -69,44 +131,24 @@
          }
         </script>
 
-        <input type="hidden" name="oldNetData" value="<?php echo urlencode (json_encode($net)); ?>">
-        <input type="hidden" name="idNet" value="<?php 
-            if ($net->configuration_data !== null && $net->configuration_data->network_id !== ''){ echo $net->configuration_data->network_id;} 
-            ?>">
+        <input type="hidden" name="oldNetData" value="<?php echo $oldNetData; ?>">
+        <input type="hidden" name="idNet" value="<?php echo $idNet; ?>">
         
-        <input type="hidden" name="protocol" value="<?php 
-            
-        if ($net->configuration_data !== null && $net->configuration_data->protocol !== ''){
-            echo $net->configuration_data->protocol;
-        }
-        else{
-            if (strpos($net->flags, "EAP")!= false){ 
-                echo "EAP";
-            }elseif (strpos($net->flags, "WPA2") != false){
-                echo "WPA2";
-            }elseif (strpos($net->flags, "WPA") != false){
-                echo "WPA";
-            }elseif (strpos($net->flags, "WEP") != false) {
-                echo "WEP";
-            } else {
-                echo "OPEN";
-            }
-        }
-            ?>">
+        <input type="hidden" name="protocol" value="<?php echo $protocol;?>">
 
             <div class="form-group">
                 <label for="ssid">SSID</label>
-                <input class="form-control" name="ssid" id="ssid" type="text" value="<?php echo $net->ssid; ?>" readonly >
+                <input class="form-control" name="ssid" id="ssid" type="text" value="<?php echo $ssid; ?>" readonly >
             </div>        
             <div class="form-group">
                 <label for="bssid">BSSID</label>
                 <select class="form-control" id="bssid" name="bssid">
                     <option value="any" >ANY</option>
-                    <option value="<?php echo $net->bssid; ?>" <?php  if ($net->configuration_data != null && $net->configuration_data->bssid == $net->bssid ) echo "selected" ; ?>> <?php echo $net->bssid; ?></option>
+                    <option value="<?php echo $bssid; ?>" <?php  if ( $bssidSelected ) echo "selected" ; ?>> <?php echo $bssid; ?></option>
                  </select>
             </div>
 
-            <?php if (strpos($net->flags, "EAP")!= false){ ?>
+            <?php if ($protocol == "EAP"){ ?>
                 <!--WPA2-EAP-->
                 <!-- 
                     Required :
@@ -118,18 +160,18 @@
                 <div class="form-group">
                     <label for="identity">Identity</label>
                     <?php //error_log("Network: ".json_encode($net)); ?>
-                    <input class="form-control" name="identity" id="ssid" type="text" <?php  if ($net->configuration_data != null && '' != $net->configuration_data->identity) echo 'value="'.$net->configuration_data->identity.'"' ; ?>>
+                    <input class="form-control" name="identity" id="ssid" type="text" <?php  if ($showIdentity) echo 'value="'.$identity.'"' ; ?>>
                 </div> 
                 <div class="form-group">
                     <label for="psk">PASSFRASE</label>
-                    <input class="form-control" name="psk" id="psk" type="password" value="<?php  if ($net->configuration_data != null) echo $net->configuration_data->psk ; ?>" onKeyUp="CheckPSK(this, 'update')">
+                    <input class="form-control" name="psk" id="psk" type="password" value="<?php echo $psk ; ?>" onKeyUp="CheckPSK(this, 'update')">
                     <span class="input-group-btn">
                       <button class="btn btn-default" onclick="showPassword()" type="button">Show</button>
                     </span>
                 </div>                
                 <div class="form-group">
                     <label for="eap">EAP</label>
-                    <select class="form-control" id="eap" name="eap" <?php  if ($net->configuration_data != null) echo 'value="'.$net->configuration_data->priority.'"' ; ?>>
+                    <select class="form-control" id="eap" name="eap" <?php  if ($eap != '') echo 'value="'.$eap.'"' ; ?>>
                         <option value="PEAP" >peap</option>
                         <option value="TLS" >tls</option>
                         <option value="TTLS" >ttls</option>
@@ -143,7 +185,7 @@
                 </div>                                
                 <div class="form-group">
                     <label for="key_mgmt">key_mgmt</label>
-                    <select class="form-control" id="key_mgmt" name="key_mgmt" <?php  if ($net->configuration_data != null) echo 'value="'.$net->configuration_data->key_mgmt.'"' ; ?>>
+                    <select class="form-control" id="key_mgmt" name="key_mgmt" <?php  if ($key_mgmt != '') echo 'value="'.$key_mgmt.'"' ; ?>>
                         <option value="NONE"                >NONE</option>
                         <option value="WPA-PSK"             >WPA-PSK</option>
                         <option value="WPA-EAP"             >WPA-EAP</option>
@@ -167,12 +209,12 @@
                      </select>
                 </div>                                
 
-            <?php }elseif (strpos($net->flags, "WPA") != false || strpos($net->flags, "WEP") != false) {?>
+            <?php }elseif ($protocol == "WPA" || $protocol == "WPA2" || $protocol == "WEP") {?>
                 <!--WPA2-PSK or WPA-PSK or WEP-->
                 <!--WEP no password, no validation empty-->
                 <div class="form-group">
                     <label for="psk">PASSFRASE</label>
-                    <input class="form-control" name="psk" id="psk" type="password" value="<?php  if ($net->configuration_data != null) echo $net->configuration_data->psk ; ?>" onKeyUp="CheckPSK(this, 'update')">
+                    <input class="form-control" name="psk" id="psk" type="password" value="<?php echo $psk ; ?>" onKeyUp="CheckPSK(this, 'update')">
                     <span class="input-group-btn">
                       <button class="btn btn-default" onclick="showPassword()" type="button">Show</button>
                     </span>
@@ -183,7 +225,7 @@
             <!--Common part-->
             <div class="form-group">
                 <label for="priority">PRIORITY</label>
-                <input class="form-control" id="priority" name="priority" type="text" list="priorityValues" pattern="-{0,1}[0-9]{1,3}" value="<?php  if ($net->configuration_data != null) echo $net->configuration_data->priority ; else echo '0';?>">
+                <input class="form-control" id="priority" name="priority" type="text" list="priorityValues" pattern="-{0,1}[0-9]{1,3}" value="<?php  echo $priority ;?>">
                 <datalist id="priorityValues">
                     <option value="0" >
                     <option value="10">
@@ -194,16 +236,16 @@
             </div>                        
             <div class="form-group">
                 <label for="disabled">DISABLE</label>
-                <input class="form-control" id="disabled" name="disabled" type="checkbox" <?php  if ($net->configuration_data != null && $net->configuration_data->disabled) echo 'checked'; ?>>
+                <input class="form-control" id="disabled" name="disabled" type="checkbox" <?php  if ($disabled) echo 'checked'; ?>>
             </div>
             <div class="form-group">
                 <label for="scan_ssid">SCAN SSID</label>
-                <input class="form-control" id="scan_ssid" name="scan_ssid" type="checkbox" <?php  if ($net->configuration_data != null && $net->configuration_data->scanSSID) echo 'checked'; ?>>
+                <input class="form-control" id="scan_ssid" name="scan_ssid" type="checkbox" <?php  if ($scanSSID) echo 'checked'; ?>>
             </div>
             <div class="form-group">
                 <div class="btn-group btn-block ">
                     <button type="submit" class="col-xs-4 col-md-4 btn btn-warning" name = "addNetwork" value="addNetwork" >
-                        <?php if ($net->configuration_data !== null && $net->configuration_data->network_id !== ''){echo _("Update");} else {echo _("Add");} ?>
+                        <?php if ($idNet !== ''){echo _("Update");} else {echo _("Add");} ?>
                     </button>
                 </div>
             </div>

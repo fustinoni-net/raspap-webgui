@@ -1,5 +1,18 @@
 <?php
+    define('WPA_CLI_PAGE_REF', 'wpa_cli_conf');
+    
+    function showNavigationButton(){
+        ?>
+                        <a href=".?page=<?php echo WPA_CLI_PAGE_REF; ?>" class="btn btn-info" id="update"><?php echo _("Scan")."..."; ?></a>
+                        <a href=".?page=<?php echo WPA_CLI_PAGE_REF; ?>&netList=yes" class="btn btn-info" id="showNet"><?php echo _("Net list")."..."; ?></a>
+                        <a href=".?page=<?php echo WPA_CLI_PAGE_REF; ?>&wps=yes" class="btn btn-success" id="showNet"><?php echo _("WPS")."..."; ?></a>
+<?php
+    }
+    
+    
     function showUp(StatusMessages $status)
+
+
 
     {?>
         <div class="row">
@@ -9,19 +22,17 @@
                 <!-- /.panel-heading -->
                 <div class="panel-body">
                     <p><?php $status->showMessages(); ?></p>
-                    <h4><?php echo _("Client settings"); ?></h4>
-                    <div class="btn-group btn-block">
-                        <a href=".?<?php echo htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES); ?>" style="padding:10px;float: right;display: block;position: relative;margin-top: -55px;" class="col-md-2 btn btn-info" id="update"><?php echo _("Rescan"); ?></a>
-                    </div>
-
-                    <form method="POST" action="?page=wpa_cli_conf" name="wpa_cli_conf_form">
+                    <?php showNavigationButton(); ?>
+                    <br>
+                    <form method="POST" action="?page=<?php echo WPA_CLI_PAGE_REF; ?>" name="wpa_cli_conf_form">
                         <?php CSRFToken() ?>
 <?php } ?>
 
-<?php function showDown() {?>
+<?php function showDown(bool $showNavButt) {?>
                     </form>
                 </div><!-- ./ Panel body -->
                 <div class="panel-footer"><?php //echo _("<strong>Note:</strong> WEP access points appear as 'Open'. RaspAP does not currently support connecting to WEP"); ?>
+                    <?php if($showNavButt) showNavigationButton(); ?>
                 </div>
             </div><!-- /.panel-primary -->
           </div><!-- /.col-lg-12 -->

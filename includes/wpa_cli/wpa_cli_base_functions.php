@@ -166,6 +166,39 @@
 
         return $return_value;
     }    
+
+    function wpsPbcConnect(){
+        $return_value = null;
+        exec( 'wpa_cli_py_wps_connect_to_network '.RASPI_WIFI_CLIENT_INTERFACE.' '.' 2>&1', $return_value, $return_err );
+        if ($return_err != 0){
+            throw new WpaCliException(implode("\n",$return_value), $return_err);
+        }
+
+        return $return_value;
+    }    
+    
+    function wpsPinConnect($pin){
+        $return_value = null;
+        exec( 'wpa_cli_py_wps_connect_to_network '.RASPI_WIFI_CLIENT_INTERFACE.' -p '.$pin.' 2>&1', $return_value, $return_err );
+        if ($return_err != 0){
+            throw new WpaCliException(implode("\n",$return_value), $return_err);
+        }
+
+        return $return_value;
+    }    
+    
+    
+    
+    function reconfigure(){
+        $return_value = null;
+        
+        exec( 'wpa_cli_py '.RASPI_WIFI_CLIENT_INTERFACE.' reconfigure'.' 2>&1',$return_value, $return_err );
+        if ($return_err != 0){
+            throw new WpaCliException(implode("\n",$return_value), $return_err);
+        }
+
+        return $return_value;
+    }    
     
     function removeNetwork($network_id){
         $return_value_out = array();
@@ -308,6 +341,8 @@
                             $network->protocol = 'WEP';
                             break;
                         case 'password':
+                            $network->psk = $keyValue;
+                            break;                        
                         case 'psk':
                             $network->psk = $keyValue;
                             $network->protocol = 'WPA';

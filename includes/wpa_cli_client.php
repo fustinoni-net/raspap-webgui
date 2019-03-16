@@ -1,11 +1,13 @@
 <?php
 
-    include_once ('wpa_cli_base_functions.php');
-    include_once ('wpa_cli_show_up_down.php');
-    include_once ('wpa_cli_show_cancel_network.php');
-    include_once ('wpa_cli_show_network_data.php');
-    include_once ('wpa_cli_show_scan_result.php');
-    //include_once ('wpa_config_file_functions.php');
+    include_once ('wpa_cli/wpa_cli_base_functions.php');
+    include_once ('wpa_cli/wpa_cli_show_up_down.php');
+    include_once ('wpa_cli/wpa_cli_show_cancel_network.php');
+    include_once ('wpa_cli/wpa_cli_show_network_data.php');
+    include_once ('wpa_cli/wpa_cli_show_scan_result.php');
+    include_once ('wpa_cli/wpa_cli_show_networks_list.php');
+    include_once ('wpa_cli/wpa_cli_wps.php');
+    //include_once ('wpa_cli/wpa_config_file_functions.php');
 
   function prepareNetworkData2Show($networks, $networks_list, $connected_bssid){
     $ssid_array = array();
@@ -69,13 +71,28 @@ function createModifyNetwork(StatusMessages $status)
 
 function completeConfigurationDataFromWPASupplicantConfFile($net)
 {
-    $currentNetId = $net->configuration_data->network_id;
+    if (isset($net->configuration_data)){
+        //From wpa_cli_scan_result
+        $currentNetId = $net->configuration_data->network_id;
+        $ssid = $net->configuration_data->ssid;
+    }else{
+        //From wpa_cli_show_networks_list
+        $currentNetId = $net->network_id;
+        $ssid = $net->ssid;
+    }
+    
     $networkList = getWpaSupplicantConfData();
     
-    if (isset($networkList[$currentNetId]) && $net->configuration_data->ssid == $networkList[$currentNetId]->ssid) {
-        $networkList[$currentNetId]->network_id = $net->configuration_data->network_id;
+    if (isset($networkList[$currentNetId]) && $ssid == $networkList[$currentNetId]->ssid) {
+        $networkList[$currentNetId]->network_id = $currentNetId;
         error_log("completeConfigurationDataFromWPASupplicantConfFile:Network: " . json_encode($networkList[$currentNetId]));
-        $net->configuration_data = $networkList[$currentNetId];
+        
+        if (isset($net->configuration_data)){
+            $net->configuration_data = $networkList[$currentNetId];
+            return $net;
+        }else{
+            return $networkList[$currentNetId]; 
+        }
     }else{
         throw new WpaCliException(_("Saved network list not updated."));
     }
@@ -117,7 +134,24 @@ function showScanResultData(StatusMessages $status)
 
     showUp($status);
     if ($showScanResults) showScanResult($ssid_array, $connected_ssid);
-    showDown();
+    showDown(true);
+}
+
+
+function showNetworskList(StatusMessages $status){
+    try {
+        $showNetworksList = true;
+        $wpa_networks_list = getListNetworksItemResult();
+
+    } catch (WpaCliException $e) {
+        $status->addMessage(nl2br($e->errorMessage()), 'warning');
+        $showNetworksList = false;
+    }
+
+
+    showUp($status);
+    if ($showNetworksList) showNetworksListData($wpa_networks_list);
+    showDown(true);    
 }
 
 /**
@@ -129,9 +163,16 @@ function deleteNetwork(StatusMessages $status)
     if (isset($_POST['deleteNetwork'])) {
         $oldNetData = json_decode(urldecode(strval($_POST['oldNetData'])));
         try {
-            $res = removeNetwork($oldNetData->configuration_data->network_id);
-
+            if (isset($oldNetData->configuration_data)){
+                $res = removeNetwork($oldNetData->configuration_data->network_id);
+            }else{
+                $res = removeNetwork($oldNetData->network_id);
+            }
             $status->addMessage(nl2br(implode("\n", $res)));
+
+            $res = reconfigure();
+            $status->addMessage(nl2br(implode("\n", $res)));
+            
         } catch (WpaCliException $e) {
             $status->addMessage(nl2br($e->errorMessage()), 'warning');
         }
@@ -141,8 +182,49 @@ function deleteNetwork(StatusMessages $status)
 
     showUp($status);
     if ($net != null) showCancelNetworkData($net);
-    showDown();
+    showDown(false);
 }
+
+function showWps($status){
+    showUp($status);
+    showWPSPage();
+    showDown(false);
+}
+
+function wpsPbc($status){
+
+    try {
+
+        $res = wpsPbcConnect();
+        $status->addMessage(nl2br(implode("\n", $res)));
+
+    } catch (WpaCliException $e) {
+       $status->addMessage(nl2br($e->errorMessage()), 'warning');
+    }
+
+
+    showUp($status);
+    showDown(false);
+
+}
+
+function wpsPin($status){
+
+    $pin = isset($_POST['pin']) ? strval($_POST['pin'])  : '';
+    
+    try {
+
+        $res = wpsPinConnect($pin);
+        $status->addMessage(nl2br(implode("\n", $res)));
+
+    } catch (WpaCliException $e) {
+       $status->addMessage(nl2br($e->errorMessage()), 'warning');
+    }
+
+    showUp($status);
+    showDown(false);
+}
+
 
 /**
  * @param $status
@@ -160,7 +242,7 @@ function createUpdateNetwork(StatusMessages $status)
             //$net = (isset($_POST['add']))? json_decode(urldecode(strval($_POST['add']))) : json_decode(urldecode(strval($_POST['update'])));
             $net = json_decode(urldecode(strval($_POST['update'])));
 
-            completeConfigurationDataFromWPASupplicantConfFile($net);
+            $net = completeConfigurationDataFromWPASupplicantConfFile($net);
         } else {
             //$net = (isset($_POST['add']))? json_decode(urldecode(strval($_POST['add']))) : json_decode(urldecode(strval($_POST['update'])));
             $net = json_decode(urldecode(strval($_POST['add'])));
@@ -172,7 +254,7 @@ function createUpdateNetwork(StatusMessages $status)
 
     showUp($status);
     if ($net != null) showNetworkData($net);
-    showDown();
+    showDown(true);
 }
 
 function DisplayWPACliConfig(){
@@ -183,6 +265,14 @@ function DisplayWPACliConfig(){
         createUpdateNetwork($status);
     }elseif ( (isset($_POST['delete']) || isset($_POST['deleteNetwork']))   && CSRFValidate() ) {
         deleteNetwork($status);
+    }elseif ( isset($_GET['netList'])) {
+        showNetworskList($status);
+    }elseif ( isset($_GET['wps'])) {
+        showWps($status);
+    }elseif ( isset($_POST['wpsPbc'])) {
+        wpsPbc($status);
+    }elseif ( isset($_POST['wpsPin'])) {
+        wpsPin($status);
     }else{
         showScanResultData($status);
     }

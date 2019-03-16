@@ -30,7 +30,7 @@ include_once( 'includes/admin.php' );
 include_once( 'includes/dhcp.php' );
 include_once( 'includes/hostapd.php' );
 include_once( 'includes/system.php' );
-include_once( 'includes/configure_client.php' );
+//include_once( 'includes/configure_client.php' );
 include_once( 'includes/wpa_cli_client.php' );
 include_once( 'includes/networking.php' );
 include_once( 'includes/themes.php' );
@@ -128,9 +128,9 @@ $theme_url = 'dist/css/'.htmlspecialchars($theme, ENT_QUOTES);
               <li>
                 <a href="index.php?page=wpa_cli_conf"><i class="fa fa-signal fa-fw"></i> <?php echo _("Configure WiFi client"); ?></a>
 	      </li>
-              <li>
-                <a href="index.php?page=wpa_conf"><i class="fa fa-signal fa-fw"></i> <?php echo _("Configure WiFi client OLD"); ?></a>
-	      </li>
+<!--              <li>
+                <a href="index.php?page=wpa_conf"><i class="fa fa-signal fa-fw"></i> <?php //echo _("Configure WiFi client OLD"); ?></a>
+	      </li>-->
 
               <?php endif; ?>
               <?php if ( RASPI_HOTSPOT_ENABLED ) : ?>
