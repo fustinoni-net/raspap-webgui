@@ -55,7 +55,7 @@ function DisplayDnsMasqConf($formLandingPage){
     }
 
     ?>
-                  <div class="row">
+
                       <div class="col-md-6">
                         <div class="panel panel-default">
                           <div class="panel-body">
@@ -86,6 +86,6 @@ function DisplayDnsMasqConf($formLandingPage){
                           </div><!-- /.panel-body -->
                         </div><!-- /.panel-default -->
                         </div><!-- /.col-md-6 -->
-                    </div><!-- /.row -->
+
     <?php
 }

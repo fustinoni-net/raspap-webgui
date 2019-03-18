@@ -1,6 +1,8 @@
 <?php
 
 include_once('dnsmasqConf/dnsmasqConf.php');
+include_once('dashboardAddOn/connected_client.php');
+
 /**
 * Show dashboard page.
 */
@@ -242,9 +244,12 @@ function DisplayDashboard(){
                           </div><!-- /.panel-body -->
                         </div><!-- /.panel-default -->
                       </div><!-- /.col-md-6 -->
+                  </div><!-- /.row -->
+                  <div class="row">
+                        <?php  DisplayDnsMasqConf("wlan0_info") ;?>
+                        <?php showConnectedClient();?>                        
                     </div><!-- /.row -->
 
-                  <?php  DisplayDnsMasqConf("wlan0_info") ;?>
 
                  <div class="col-lg-12">
                  <div class="row">
