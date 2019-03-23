@@ -194,8 +194,11 @@ function DisplayDashboard(){
 
   exec('sudo '.ERMES_INSTALL_DIR.'utils/system/isBaseRouteEnable.sh '.RASPI_WIFI_CLIENT_INTERFACE, $stdoutIBRE);
   $stdoutIBREAllLinesGlued = implode("", $stdoutIBRE);
-  error_log(ERMES_INSTALL_DIR.'utils/system/isBaseRouteEnable.sh '.RASPI_WIFI_CLIENT_INTERFACE.": ".$stdoutIBREAllLinesGlued);
+  //error_log(ERMES_INSTALL_DIR.'utils/system/isBaseRouteEnable.sh '.RASPI_WIFI_CLIENT_INTERFACE.": ".$stdoutIBREAllLinesGlued);
   
+  exec('/usr/bin/python '.ERMES_INSTALL_DIR.'utils/system/connectivity_check.py '.RASPI_WIFI_CLIENT_INTERFACE.' 2>&1', $stdout, $err);
+  $internetConnection = implode("\n", $stdout);
+  //error_log('/usr/bin/python '.ERMES_INSTALL_DIR.'utils/system/connectivity_check.py '.RASPI_WIFI_CLIENT_INTERFACE.": ".$internetConnection." ".$err);
   
   
   ?>
@@ -241,6 +244,7 @@ function DisplayDashboard(){
                                   style="width: <?php echo htmlspecialchars($strLinkQuality, ENT_QUOTES); ?>%;"><?php echo htmlspecialchars($strLinkQuality, ENT_QUOTES); ?>%
                                 </div>
                               </div>
+                              <div class="info-item"><?php echo _("Internet connection: "); ?></div> <?php echo htmlspecialchars($internetConnection, ENT_QUOTES); ?><br /><br />
                           </div><!-- /.panel-body -->
                         </div><!-- /.panel-default -->
                       </div><!-- /.col-md-6 -->
