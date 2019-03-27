@@ -10,7 +10,7 @@ function showVPNStatus(){
                 </div>
                 <div class="form-group col-md-8">
                     <div class="btn-group btn-block">
-                        <a href=".?<?php echo htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES); ?>" class="col-md-2 btn btn-info" id="update"><?php echo _("Rescan"); ?></a>
+                        <a href=".?<?php echo htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES); ?>" class="col-md-2 btn btn-info" id="update"><?php echo _("Refresh"); ?></a>
                     </div>
                 </div>
             </div>

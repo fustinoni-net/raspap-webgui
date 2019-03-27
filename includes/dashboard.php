@@ -265,9 +265,9 @@ function DisplayDashboard(){
                     }
                     ?>
                     <?php if ( $stdoutIBREAllLinesGlued=='true' ) {
-                      echo '<input type="submit" class="btn btn-success" value="'._("Set jail ").RASPI_WIFI_CLIENT_INTERFACE.'" name="set_jail" />';
+                      echo '<input type="submit" class="btn btn-success" value="'._("Block Internet ").RASPI_WIFI_CLIENT_INTERFACE.'" name="set_jail" />';
                     } else {
-                      echo '<input type="submit" class="btn btn-warning" value="'._("Unset jail ").RASPI_WIFI_CLIENT_INTERFACE.'"  name="unset_jail" />';
+                      echo '<input type="submit" class="btn btn-danger" value="'._("Share Internet ").RASPI_WIFI_CLIENT_INTERFACE.'"  name="unset_jail" />';
                     }
                     ?>
                     <input type="button" class="btn btn-outline btn-primary" value="<?php echo _("Refresh"); ?>" onclick="document.location.reload(true)" />

@@ -26,6 +26,7 @@ function showUploadConfigFile(){
                                 <code> askpass /etc/openvpn/client/key.pass</code><br> (Instead of 'key' use the name of your .pass file) </li>
                             <li>Upload the .ovpn file and the .pass file. </li>
                         </ul>
+                        Please consider all the security implications on doing so.
                     </div>
                 </div>
         </div>

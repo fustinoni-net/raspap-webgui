@@ -1,8 +1,8 @@
  <?php function showWPSPage() { ?>       
  <h3><?php echo _("WPS"); ?></h3>
         
- The WPS functions help you securely pair your WiFi devices automatically with the router.
-            
+ The WPS functions help you securely pair your WiFi devices automatically with the router.<br><br>
+ Please note that with some device and drivers (even with the internal wifi card of the Zero W), if the pairing fails, the driver will be left in an inconsistent status and the only way to recover the system will be a reboot.
  <hr>
      
  <h4>WPS-PBC: Push button on devices</h4>
